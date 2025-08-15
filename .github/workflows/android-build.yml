@@ -1,45 +1,40 @@
-# .github/workflows/android-build.yml
-name: Build Android AAB
+name: Android Internal Test Build (No Gradlew)
 
 on:
   push:
     branches:
-      - main  # or your default branch
+      - main
   pull_request:
 
 jobs:
   build:
-    name: Build AAB
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # 1. Checkout source code
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      # 2. Set up Java 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'  # Match your Gradle version
+          distribution: temurin
+          java-version: 17
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
+      # 3. Install Gradle
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle
+          gradle-version: 8.2.1  # You can change this if your project needs a different version
 
-      - name: Grant execute permission for Gradle wrapper
-        run: chmod +x gradlew
+      # 4. Build the AAB directly using Gradle
+      - name: Build Release AAB
+        run: gradle bundleRelease
 
-      - name: Build AAB
-        run: ./gradlew bundleRelease
-
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
+      # 5. Upload the AAB as an artifact
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: release-aab
+          name: app-release
           path: app/build/outputs/bundle/release/app-release.aab
