@@ -22,17 +22,21 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 3. Install Gradle
+      # 3. Install Gradle 8.7
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.2.1  # Adjust if needed
+          gradle-version: 8.7
 
-      # 4. Build the AAB directly using Gradle
+      # 4. Create local.properties so Android build can find SDK
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      # 5. Build the AAB with debug info
       - name: Build Release AAB
-        run: gradle bundleRelease
+        run: gradle bundleRelease --stacktrace --info
 
-      # 5. Upload the AAB as an artifact (new v4 syntax)
+      # 6. Upload the AAB as an artifact
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
