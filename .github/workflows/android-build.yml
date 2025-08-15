@@ -1,5 +1,8 @@
 name: Build Android AAB
 
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI
+
 jobs:
   build:
     name: Build AAB
