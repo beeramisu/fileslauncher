@@ -1,7 +1,7 @@
 name: Build Android AAB
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:  # Manual trigger from GitHub UI
 
 jobs:
   build:
@@ -26,10 +26,8 @@ jobs:
 
       - name: Build Release AAB
         run: ./gradlew bundleRelease --stacktrace --info
-
       - name: Upload AAB artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-aab
           path: app/build/outputs/bundle/release/app-release.aab
-
