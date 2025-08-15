@@ -1,4 +1,4 @@
-name: Android Internal Test Build
+name: Android Internal Test Build & Release
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repo
+      # 1. Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,8 +28,25 @@ jobs:
         with:
           gradle-version: 8.7
 
-      # 4. Create local.properties so Android build can find the SDK
+      # 4. Configure Android SDK path
       - name: Configure Android SDK path
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-      # 5. Build the release AAB with de
+      # 5. Build the release AAB
+      - name: Build Release AAB
+        run: gradle bundleRelease --stacktrace --info
+
+      # 6. Upload the AAB as a workflow artifact (optional)
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/bundle/release/app-release.aab
+
+      # 7. Create GitHub Release and attach AAB
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v1.0.${{ github.run_number }}
+          name: Internal Test Build ${{ github.run_number }}
+          files: app/build/outputs/bundle/release/app-release.aab
